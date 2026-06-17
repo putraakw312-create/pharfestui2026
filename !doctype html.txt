@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="id"><head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHARFEST UI 2026</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .comp-card { transition: transform 0.3s, box-shadow 0.3s; }
+    .comp-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .countdown-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
+    @media (min-width: 768px) { .countdown-box { backdrop-filter: blur(8px); } }
+    .timeline-dot { width: 16px; height: 16px; background: #FFD700; border-radius: 50%; border: 3px solid #fff; }
+    .timeline-line { width: 2px; background: rgba(255,255,255,0.3); }
+
+
+    /* Lightweight scroll animations - GPU only (transform + opacity) */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+      transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1);
+      will-change: transform, opacity;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    /* Stagger delays applied via inline style */
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
+    @keyframes slideInUp { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes slideOutDown { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(30px) scale(0.98); } }
+    .page.active { animation: slideInUp 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .page.exit { animation: slideOutDown 0.4s cubic-bezier(0.36,0,0.66,1) forwards; }
+
+    /* Logo pulsing glow effect */
+    @keyframes logo-glow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.3)); }
+      50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6)); }
+    }
+    .logo-glow {
+      animation: logo-glow 3s ease-in-out infinite;
+    }
+
+    .section-hero { background: linear-gradient(180deg, #87CEEB 0%, #4A90D9 100%); }
+    .section-timeline { background: linear-gradient(180deg, #4A90D9 0%, #2E5C8A 100%); }
+    .section-competitions { background: linear-gradient(180deg, #2E5C8A 0%, #1a4a7a 100%); }
+    .section-footer { background: linear-gradient(180deg, #1a4a7a 0%, #0d2847 100%); }
+    .detail-section { background: linear-gradient(180deg, #2E5C8A 0%, #0d2847 100%); }
+    
+    .navbar-bg { background: linear-gradient(90deg, #1a3a52 0%, #2E5C8A 100%); }
+    .navbar-link { color: #ffffff; }
+  </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="w-full min-h-screen text-white pt-16 sm:pt-20" style="background: linear-gradient(rgb(135, 206, 235), rgb(74, 144, 217), rgb(26, 74, 122));"><!-- ===== NAVIGATION BAR ===== -->
+  <nav id="navbar" class="navbar-bg fixed top-0 left-0 right-0 z-50 w-full shadow-md">
+   <div class="w-full px-3 sm:px-6 py-2 sm:py-4 flex items-center justify-between"><!-- Logo + Title (Left) -->
+    <div class="flex items-center gap-2 sm:gap-3 flex-1"><img data-template-id="navbar-logo" class="canva-image w-8 sm:w-10 h-8 sm:h-10 object-contain flex-shrink-0" loading="lazy" src="canva://MAHM2WVJGsM/1" alt="Pharmacy Festival 2026 logo"> <span data-template-id="navbar-title" class="canva-text font-bold text-xs sm:text-lg truncate" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 18px;">PHARFEST UI 2026</span>
+    </div><!-- Desktop Nav Links (Hidden on mobile) -->
+    <div class="hidden md:flex items-center gap-6 lg:gap-8"><button onclick="navigateTo('home')" class="navbar-link canva-text text-sm font-medium hover:opacity-80 transition" data-template-id="nav-home" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Home</button>
+     <div class="relative group"><button class="navbar-link canva-text text-sm font-medium hover:opacity-80 transition flex items-center gap-1" data-template-id="nav-competitions" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Competitions</button>
+      <div class="absolute right-0 mt-0 w-64 backdrop-blur-md border border-white/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2" style="background: rgba(26, 58, 82, 0.95)">
+       <!-- Kompetisi Pelajar Submenu -->
+       <div class="relative group/pelajar">
+        <button class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/10 transition flex items-center justify-between gap-2"> <span data-template-id="nav-comp-pelajar-title-btn" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 14px;">Kompetisi Pelajar</span> <i data-lucide="chevron-left" class="w-3 h-3 opacity-60"></i> </button>
+        <div class="absolute right-full top-0 mt-0 mr-1 w-56 backdrop-blur-md border border-white/20 rounded-lg shadow-lg opacity-0 invisible group-hover/pelajar:opacity-100 group-hover/pelajar:visible transition-all duration-200 py-2" style="background: rgba(26, 58, 82, 0.95)">
+         <button onclick="navigateTo('comp-sma-1')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-sma" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Essay Writing Competition (EWC)</button> <button onclick="navigateTo('comp-sma-2')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-sma-2" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Digital Poster Competition (DPC)</button>
+        </div>
+       </div><!-- Kompetisi Universitas Submenu -->
+       <div class="relative group/univ">
+        <button class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/10 transition flex items-center justify-between gap-2"> <span data-template-id="nav-comp-univ-title-btn" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 14px;">Kompetisi Mahasiswa</span> <i data-lucide="chevron-left" class="w-3 h-3 opacity-60"></i> </button>
+        <div class="absolute right-full top-0 mt-0 mr-1 w-56 backdrop-blur-md border border-white/20 rounded-lg shadow-lg opacity-0 invisible group-hover/univ:opacity-100 group-hover/univ:visible transition-all duration-200 py-2" style="background: rgba(26, 58, 82, 0.95)">
+         <button onclick="navigateTo('comp-univ-1')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-1" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Business Plan Competition (BCC)</button> <button onclick="navigateTo('comp-univ-2')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-2" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Digital Poster Competition</button> <button onclick="navigateTo('comp-univ-3')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-3" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Drug Packaging Design Competition (DPDC)</button> <button onclick="navigateTo('comp-univ-4')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-4" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Essay Writing Competition (EWC)</button> <button onclick="navigateTo('comp-univ-5')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-5" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Patient Counseling Competition (PCC)</button> <button onclick="navigateTo('comp-univ-6')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-comp-univ-6" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Pharmacy Debate Competition (PDC)</button>
+        </div>
+       </div><button onclick="navigateTo('webinar')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-webinar" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Webinar</button> <button class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/20 transition" data-template-id="nav-contact" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Kontak &amp; Kerja Sama</button>
+      </div>
+     </div>
+    </div><!-- Right Side: Refresh Button + Mobile Menu (Always visible) -->
+    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0"><button id="refresh-btn" onclick="location.reload()" class="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 transition" title="Refresh page"> <i data-lucide="rotate-cw" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i> </button> <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-white/10 transition"> <i data-lucide="menu" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></i> </button>
+    </div>
+   </div><!-- Mobile Menu (Dropdown below navbar) -->
+   <div id="mobile-menu" class="hidden md:hidden bg-white/5 backdrop-blur-sm border-t border-white/10">
+    <div class="w-full px-3 sm:px-6 py-3 space-y-2"><button onclick="navigateTo('home'); toggleMobileMenu()" class="navbar-link canva-text block w-full text-left px-4 py-2 text-sm font-medium hover:bg-white/10 rounded transition" data-template-id="nav-home-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Home</button> <button onclick="toggleMobileSubmenu('competitions')" class="navbar-link canva-text block w-full text-left px-4 py-2 text-sm font-medium hover:bg-white/10 rounded transition flex items-center justify-between" data-template-id="nav-competitions-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Competitions</button>
+     <div id="mobile-submenu-competitions" class="hidden pl-4 space-y-2">
+      <!-- Pelajar submenu --> <button onclick="toggleMobileSubmenu('pelajar')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/10 rounded transition flex items-center justify-between" data-template-id="nav-comp-pelajar-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Pelajar</button>
+      <div id="mobile-submenu-pelajar" class="hidden pl-4 space-y-2"><button onclick="navigateTo('comp-sma-1'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-sma-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Pelajar</button> <button onclick="navigateTo('comp-sma-2'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-sma-2-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Digital Poster Competition (DPC)</button>
+      </div><!-- Universitas submenu --> <button onclick="toggleMobileSubmenu('universitas')" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/10 rounded transition flex items-center justify-between" data-template-id="nav-comp-univ-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Universitas</button>
+      <div id="mobile-submenu-universitas" class="hidden pl-4 space-y-2"><button onclick="navigateTo('comp-univ-1'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-1-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Business Plan Competition (BCC)</button> <button onclick="navigateTo('comp-univ-2'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-2-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Digital Poster Competition</button> <button onclick="navigateTo('comp-univ-3'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-3-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Drug Packaging Design Competition (DPDC)</button> <button onclick="navigateTo('comp-univ-4'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-4-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Essay Writing Competition (EWC)</button> <button onclick="navigateTo('comp-univ-5'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-5-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Patient Counseling Competition (PCC)</button> <button onclick="navigateTo('comp-univ-6'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-xs hover:bg-white/10 rounded transition" data-template-id="nav-comp-univ-6-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Pharmacy Debate Competition (PDC)</button>
+      </div><button onclick="navigateTo('webinar'); toggleMobileMenu()" class="canva-text block w-full text-left px-4 py-2 text-sm hover:bg-white/10 rounded transition" data-template-id="nav-webinar-mobile" style="color: rgb(255, 255, 255); font-weight: 500; font-style: normal; font-size: 16px;">Webinar</button>
+     </div>
+    </div>
+   </div>
+  </nav><!-- ===== HOME ===== -->
+  <div id="page-home" class="page active">
+   <section class="section-hero relative w-full min-h-[80vh] flex items-center justify-center overflow-hidden"><img data-template-id="hero-banner" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2X_C4xQ/1" alt="Grand Design PHARFEST UI 2026 banner with floating islands and fantasy sky">
+    <div class="relative z-10 text-center px-4 sm:px-6 py-12 sm:py-20 w-full">
+     <div class="relative inline-block mb-4 sm:mb-6">
+      <img data-template-id="pharfest-logo" class="canva-image w-24 sm:w-40 h-24 sm:h-40 mx-auto object-contain logo-glow" loading="lazy" src="canva://MAHM2WVJGsM/1" alt="Pharmacy Festival 2026 logo">
+     </div>
+     <h1 data-template-id="hero-title" class="canva-text text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 45px;">PHARFEST UI 2026</h1>
+     <p data-template-id="hero-tagline" class="canva-text text-base sm:text-lg md:text-xl mb-4 sm:mb-6 opacity-90" style="color: rgb(224, 244, 255); font-weight: 500; font-style: normal; font-size: 20px;">Innovative Idea, Sustained System, Resilient Future</p>
+     <p data-template-id="hero-about" class="canva-text text-xs sm:text-sm md:text-base max-w-2xl mx-auto mb-6 sm:mb-8 opacity-80 px-2" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">PHARFEST UI 2026 adalah rangkaian acara tahunan oleh mahasiswa Fakultas Farmasi Universitas Indonesia, terdiri dari rangkaian edukatif dan kompetitif, yaitu 6 cabang lomba, webinar nasional ber-skp (amin), yang diapit dengan Grand Opening dan Grand Closing.</p>
+     <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-6 sm:mb-8 px-2">
+      <div class="countdown-box rounded-xl px-4 sm:px-6 py-3 sm:py-4 text-center w-full sm:w-auto">
+       <p data-template-id="doorprize-label" class="canva-text text-xs uppercase tracking-wider mb-1" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">TOTAL HADIAH</p>
+       <p data-template-id="doorprize-value" class="canva-text text-lg sm:text-2xl font-bold" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 28px;">Rp 25.000.000+</p>
+      </div>
+      <div class="countdown-box rounded-xl px-4 sm:px-6 py-3 sm:py-4 text-center w-full sm:w-auto">
+       <p data-template-id="countdown-label" class="canva-text text-xs uppercase tracking-wider mb-1" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">REGISTRATION CLOSES IN</p>
+       <div id="countdown-home" class="text-lg sm:text-2xl font-bold font-mono">
+        00d 00h 00m 00s
+       </div>
+      </div>
+     </div><button data-template-id="explore-btn" class="canva-button px-6 sm:px-8 py-2 sm:py-3 rounded-full font-bold text-base sm:text-lg hover:opacity-90 transition reveal" style="transition-delay: 0.4s; background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 18px;" onclick="document.getElementById('competitions-section').scrollIntoView({behavior:'smooth'})">Telusuri Lomba ↓</button>
+    </div>
+   </section>
+   <section class="section-timeline relative w-full overflow-hidden"><img data-template-id="timeline-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2SzMGPg/1" alt="Section background with floating islands and string lights">
+    <div class="relative z-10 py-12 sm:py-16 px-4 sm:px-6">
+     <h2 data-template-id="timeline-title" class="canva-text text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 reveal" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 24px;">Our Timeline</h2>
+     <div class="max-w-3xl mx-auto space-y-4 sm:space-y-6">
+      <div class="flex gap-4 items-start reveal" style="transition-delay:0.1s">
+       <div class="flex flex-col items-center flex-shrink-0">
+        <div class="timeline-dot"></div>
+        <div class="timeline-line h-8 sm:h-12"></div>
+       </div>
+       <div class="min-w-0">
+        <p data-template-id="tl-1-date" class="canva-text text-xs sm:text-sm font-bold opacity-70" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">XXXX</p>
+        <p data-template-id="tl-1-event" class="canva-text font-medium text-sm sm:text-base" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Grand Opening &amp; Pendaftaran Dibuka</p>
+       </div>
+      </div>
+      <div class="flex gap-4 items-start reveal" style="transition-delay:0.2s">
+       <div class="flex flex-col items-center flex-shrink-0">
+        <div class="timeline-dot"></div>
+        <div class="timeline-line h-8 sm:h-12"></div>
+       </div>
+       <div class="min-w-0">
+        <p data-template-id="tl-2-date" class="canva-text text-xs sm:text-sm font-bold opacity-70" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">XXXX</p>
+        <p data-template-id="tl-2-event" class="canva-text font-medium text-sm sm:text-base" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Masa Pendaftaran Kompetisi &amp; Webinar</p>
+       </div>
+      </div>
+      <div class="flex gap-4 items-start reveal" style="transition-delay:0.3s">
+       <div class="flex flex-col items-center flex-shrink-0">
+        <div class="timeline-dot"></div>
+        <div class="timeline-line h-8 sm:h-12"></div>
+       </div>
+       <div class="min-w-0">
+        <p data-template-id="tl-3-date" class="canva-text text-xs sm:text-sm font-bold opacity-70" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">XXXX</p>
+        <p data-template-id="tl-3-event" class="canva-text font-medium text-sm sm:text-base" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Babak Penyisihan &amp; Webinar</p>
+       </div>
+      </div>
+      <div class="flex gap-4 items-start reveal" style="transition-delay:0.4s">
+       <div class="flex flex-col items-center flex-shrink-0">
+        <div class="timeline-dot"></div>
+       </div>
+       <div class="min-w-0">
+        <p data-template-id="tl-4-date" class="canva-text text-xs sm:text-sm font-bold opacity-70" style="color: rgb(255, 215, 0); font-weight: 700; font-style: normal; font-size: 16px;">XXXX</p>
+        <p data-template-id="tl-4-event" class="canva-text font-medium text-sm sm:text-base" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Final &amp; Grand Closing</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section id="competitions-section" class="section-competitions relative w-full overflow-hidden"><img data-template-id="comp-section-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Competition section background with butterfly and sparkles">
+    <div class="relative z-10 py-12 sm:py-16 px-4 sm:px-6">
+     <h2 data-template-id="sma-section-title" class="canva-text text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 reveal" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Kompetisi Pelajar (SMA/MA/SMK Sederajat)</h2>
+     <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16">
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s"><img data-template-id="comp-sma-1-img" class="canva-image w-full h-40 sm:h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-4 sm:p-5">
+        <h3 data-template-id="comp-sma-1-title" class="canva-text font-bold text-base sm:text-lg mb-2" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Essay Writing Competition (EWC)</h3>
+        <p data-template-id="comp-sma-1-desc" class="canva-text text-xs sm:text-sm opacity-80 mb-4" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Kompetisi esai kreatif bertema kesehatan dan kefarmasian untuk siswa SMA/sederajat.</p>
+        <div class="flex gap-2 sm:gap-3 flex-wrap"><a data-template-id="comp-sma-1-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-sma-1-detail-btn" onclick="navigateTo('comp-sma-1')" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 border border-white/40 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">See Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.2s"><img data-template-id="comp-sma-2-img" class="canva-image w-full h-40 sm:h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-4 sm:p-5">
+        <h3 data-template-id="comp-sma-2-title" class="canva-text font-bold text-base sm:text-lg mb-2" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Digital Poster Competition</h3>
+        <p data-template-id="comp-sma-2-desc" class="canva-text text-xs sm:text-sm opacity-80 mb-4" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Kompetisi desain poster kreatif bertema kesehatan dan kefarmasian untuk siswa SMA/sederajat.</p>
+        <div class="flex gap-2 sm:gap-3 flex-wrap"><a data-template-id="comp-sma-2-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-sma-2-detail-btn" onclick="navigateTo('comp-sma-2')" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 border border-white/40 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">See Details</button>
+        </div>
+       </div>
+      </div>
+     </div>
+     <h2 data-template-id="univ-section-title" class="canva-text text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 reveal" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Kompetisi Universitas (D-3/D-4/S-1/Apoteker*)</h2>
+     <div class="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s"><img data-template-id="comp-univ-1-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-1-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Business Plan Competition (BCC)</h3>
+        <p data-template-id="comp-univ-1-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Kompetisi karya tulis ilmiah bidang kefarmasian untuk mahasiswa S1 seluruh Indonesia.</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-1-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-1-detail-btn" onclick="navigateTo('comp-univ-1')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.15s"><img data-template-id="comp-univ-2-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-2-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Digital Poster Competition (BCC)</h3>
+        <p data-template-id="comp-univ-2-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Business case bidang farmasi dan kesehatan.</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-2-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-2-detail-btn" onclick="navigateTo('comp-univ-2')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.2s"><img data-template-id="comp-univ-3-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-3-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Drug Packaging Design Competition (DPDC)</h3>
+        <p data-template-id="comp-univ-3-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Itulahhhhhhhhhhhhhhhhhhhhhhhhhhsad</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-3-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-3-detail-btn" onclick="navigateTo('comp-univ-3')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.25s"><img data-template-id="comp-univ-4-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-4-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Essay Writing Competition (EWC)</h3>
+        <p data-template-id="comp-univ-4-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Inovasi produk farmasi dan kesehatan.</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-4-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-4-detail-btn" onclick="navigateTo('comp-univ-4')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.3s"><img data-template-id="comp-univ-5-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-5-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">PCC</h3>
+        <p data-template-id="comp-univ-5-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablsabdlashdiohad</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-5-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-5-detail-btn" onclick="navigateTo('comp-univ-5')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.35s"><img data-template-id="comp-univ-6-img" class="canva-image w-full h-32 sm:h-40 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-3 sm:p-4">
+        <h3 data-template-id="comp-univ-6-title" class="canva-text font-bold text-sm sm:text-base mb-1" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">PDC</h3>
+        <p data-template-id="comp-univ-6-desc" class="canva-text text-xs opacity-80 mb-3" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">ashdioashias</p>
+        <div class="flex gap-1.5 sm:gap-2 flex-wrap"><a data-template-id="comp-univ-6-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-2 sm:px-3 py-1 rounded-lg font-bold text-xs hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="comp-univ-6-detail-btn" onclick="navigateTo('comp-univ-6')" class="canva-button px-2 sm:px-3 py-1 border border-white/40 rounded-lg text-xs font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Details</button>
+        </div>
+       </div>
+      </div>
+     </div>
+     <h2 data-template-id="webinar-section-title" class="canva-text text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 reveal" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">Webinar</h2>
+     <div class="max-w-md mx-auto px-4 sm:px-0">
+      <div class="comp-card rounded-2xl overflow-hidden bg-white/10 border border-white/20 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s"><img data-template-id="webinar-img" class="canva-image w-full h-40 sm:h-48 object-cover" loading="lazy" src="https://images.pexels.com/photos/7794361/pexels-photo-7794361.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Plain white background">
+       <div class="p-4 sm:p-5">
+        <h3 data-template-id="webinar-title" class="canva-text font-bold text-base sm:text-lg mb-2" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 19px;">Webinar Pharmacy Festival 2026</h3>
+        <p data-template-id="webinar-desc" class="canva-text text-xs sm:text-sm opacity-80 mb-4" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablsdbalsdasd</p>
+        <div class="flex gap-2 sm:gap-3 flex-wrap"><a data-template-id="webinar-register-btn" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a> <button data-template-id="webinar-detail-btn" onclick="navigateTo('webinar')" class="canva-button px-3 sm:px-4 py-1.5 sm:py-2 border border-white/40 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/10" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">See Details</button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <footer data-template-id="footer-bg" class="canva-footer section-footer py-8 sm:py-10 px-4 sm:px-6" style="background: rgb(13, 40, 71);">
+    <div class="max-w-4xl mx-auto text-center"><img data-template-id="footer-logo" class="canva-image w-16 sm:w-20 h-16 sm:h-20 mx-auto mb-3 sm:mb-4 object-contain" loading="lazy" src="canva://MAHM2WVJGsM/1" alt="Pharmacy Festival 2026 logo">
+     <p data-template-id="footer-name" class="canva-text font-bold text-base sm:text-lg mb-2" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 16px;">PHARFEST UI 2026</p>
+     <p data-template-id="footer-contact" class="canva-text text-xs sm:text-sm opacity-70 mb-3 sm:mb-4" style="color: rgb(135, 206, 235); font-weight: 400; font-style: normal; font-size: 16px;">Contact: pharmacyfestival2026@gmail.com | +62 XXX</p>
+     <div class="flex justify-center gap-3 sm:gap-4 flex-wrap"><a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"> <img data-template-id="social-instagram" class="canva-image w-4 sm:w-5 h-4 sm:h-5 object-contain" loading="lazy" src="https://images.pexels.com/photos/7794388/pexels-photo-7794388.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Instagram icon"> </a> <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"> <img data-template-id="social-tiktok" class="canva-image w-4 sm:w-5 h-4 sm:h-5 object-contain" loading="lazy" src="https://images.pexels.com/photos/7794388/pexels-photo-7794388.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="TikTok icon"> </a> <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"> <img data-template-id="social-youtube" class="canva-image w-4 sm:w-5 h-4 sm:h-5 object-contain" loading="lazy" src="https://images.pexels.com/photos/7794388/pexels-photo-7794388.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="YouTube icon"> </a> <a href="mailto:pharfestui@gmail.com" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20"> <img data-template-id="social-email" class="canva-image w-4 sm:w-5 h-4 sm:h-5 object-contain" loading="lazy" src="https://images.pexels.com/photos/7794388/pexels-photo-7794388.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Email icon"> </a>
+     </div>
+    </div>
+   </footer>
+  </div><!-- ===== DETAIL: comp-sma-1 ===== -->
+  <div id="page-comp-sma-1" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-sma1-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-8 sm:py-12 px-4 sm:px-6 max-w-4xl mx-auto w-full"><button onclick="navigateTo('home')" class="mb-6 sm:mb-8 flex items-center gap-2 text-xs sm:text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-8 sm:mb-10">
+      <h1 data-template-id="detail-sma1-name" class="canva-text text-2xl sm:text-3xl font-bold mb-2 sm:mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Essay Writing Competition (EWC)</h1>
+      <p data-template-id="detail-sma1-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-4 sm:mb-6 text-sm sm:text-base" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-sma1-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-sm sm:text-base hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-6 sm:space-y-8">
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-4 sm:p-6 reveal sm:backdrop-blur-sm">
+       <h2 data-template-id="detail-sma1-theme-heading" class="canva-text text-lg sm:text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-sma1-theme" class="canva-text font-medium mb-2 text-sm sm:text-base" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-sma1-subthemes" class="canva-text text-xs sm:text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-4 sm:p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-sma1-timeline-heading" class="canva-text text-lg sm:text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-sma1-timeline" class="canva-text text-xs sm:text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-4 sm:p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-sma1-prize-heading" class="canva-text text-lg sm:text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-sma1-prizes" class="canva-text text-xs sm:text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-4 sm:p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-sma1-faq-heading" class="canva-text text-lg sm:text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-sma1-faq-q1" class="canva-text text-xs sm:text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Format esai apa yang diterima?</p>
+         <p data-template-id="detail-sma1-faq-a1" class="canva-text text-xs sm:text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Esai tulis tangan atau digital, 5-7 halaman.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-sma1-faq-q2" class="canva-text text-xs sm:text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Bolehkah dikerjakan tim?</p>
+         <p data-template-id="detail-sma1-faq-a2" class="canva-text text-xs sm:text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Kompetisi bersifat individu.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-sma1-faq-q3" class="canva-text text-xs sm:text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah ada tema khusus?</p>
+         <p data-template-id="detail-sma1-faq-a3" class="canva-text text-xs sm:text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Ya, tema akan diumumkan saat pendaftaran.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-sma-2 ===== -->
+  <div id="page-comp-sma-2" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-sma2-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-sma2-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Digital Poster Competition</h1>
+      <p data-template-id="detail-sma2-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-sma2-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm">
+       <h2 data-template-id="detail-sma2-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-sma2-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-sma2-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-sma2-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-sma2-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-sma2-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-sma2-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-sma2-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-sma2-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Format poster apa yang diterima?</p>
+         <p data-template-id="detail-sma2-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Digital poster A3 (297x420mm), format PDF/JPEG.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-sma2-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Bolehkah dikerjakan tim?</p>
+         <p data-template-id="detail-sma2-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Kompetisi bersifat individu.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-sma2-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah ada tema khusus?</p>
+         <p data-template-id="detail-sma2-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Ya, tema akan diumumkan saat pendaftaran.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-1 ===== -->
+  <div id="page-comp-univ-1" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ1-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ1-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Business Plan Competition (BCC)</h1>
+      <p data-template-id="detail-univ1-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-univ1-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm">
+       <h2 data-template-id="detail-univ1-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ1-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ1-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ1-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ1-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 border border-white/20 rounded-2xl p-6 reveal sm:backdrop-blur-sm" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ1-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ1-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ1-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ1-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Berapa anggota per tim?</p>
+         <p data-template-id="detail-univ1-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Maksimal 3 orang per tim.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ1-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah harus mahasiswa farmasi?</p>
+         <p data-template-id="detail-univ1-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Terbuka untuk seluruh jurusan.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ1-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Bahasa penulisan?</p>
+         <p data-template-id="detail-univ1-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Bahasa Indonesia atau Bahasa Inggris.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-2 ===== -->
+  <div id="page-comp-univ-2" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ2-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ2-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Digital Poster Competition</h1>
+      <p data-template-id="detail-univ2-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blabla
+</p><a data-template-id="detail-univ2-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-univ2-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ2-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ2-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ2-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ2-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ2-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ2-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ2-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ2-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah harus mahasiswa farmasi?</p>
+         <p data-template-id="detail-univ2-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Tidak, terbuka untuk semua jurusan.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ2-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Berapa anggota per tim?</p>
+         <p data-template-id="detail-univ2-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: 3-5 orang per tim.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ2-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Format presentasi?</p>
+         <p data-template-id="detail-univ2-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Pitching 10 menit + Q&amp;A 5 menit.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-3 ===== -->
+  <div id="page-comp-univ-3" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ3-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ3-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Drug Packaging Design Competition (DPDC)</h1>
+      <p data-template-id="detail-univ3-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-univ3-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-univ3-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ3-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ3-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ3-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ3-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ3-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ3-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ3-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ3-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Format debat apa yang digunakan?</p>
+         <p data-template-id="detail-univ3-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Asian Parliamentary format.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ3-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Bahasa apa?</p>
+         <p data-template-id="detail-univ3-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Bahasa Inggris.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ3-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Berapa orang per tim?</p>
+         <p data-template-id="detail-univ3-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: 3 orang per tim.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-4 ===== -->
+  <div id="page-comp-univ-4" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ4-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ4-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Essay Writing Competition (EWC)</h1>
+      <p data-template-id="detail-univ4-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-univ4-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-univ4-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ4-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ4-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ4-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ4-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ4-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ4-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ4-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ4-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah harus berupa produk jadi?</p>
+         <p data-template-id="detail-univ4-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Cukup prototype atau konsep yang feasible.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ4-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Berapa anggota per tim?</p>
+         <p data-template-id="detail-univ4-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Maksimal 4 orang.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ4-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah lintas jurusan diperbolehkan?</p>
+         <p data-template-id="detail-univ4-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Ya, diperbolehkan.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-5 ===== -->
+  <div id="page-comp-univ-5" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ5-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ5-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">PCC (Patient Counseking Competition)</h1>
+      <p data-template-id="detail-univ5-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablabla</p><a data-template-id="detail-univ5-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-univ5-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ5-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ5-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ5-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ5-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ5-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ5-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ5-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ5-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Siapa yang bisa ikut?</p>
+         <p data-template-id="detail-univ5-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Mahasiswa S1 Farmasi aktif.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ5-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Format kompetisi?</p>
+         <p data-template-id="detail-univ5-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Case analysis + presentasi.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ5-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Berapa orang per tim?</p>
+         <p data-template-id="detail-univ5-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: 3 orang per tim.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: comp-univ-6 ===== -->
+  <div id="page-comp-univ-6" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-univ6-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2dhsG54/1" alt="Detail page background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-univ6-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">PDC (Pharmacy Debate Competition)</h1>
+      <p data-template-id="detail-univ6-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Blablablabla</p><a data-template-id="detail-univ6-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-univ6-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-univ6-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-univ6-subthemes" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">• XXX (buat calon subtema)
+• XXX (buat calon subtema)</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-univ6-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-univ6-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-univ6-prize-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🏆 Hadiah</h2>
+       <p data-template-id="detail-univ6-prizes" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.3s">
+       <h2 data-template-id="detail-univ6-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-univ6-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Durasi video?</p>
+         <p data-template-id="detail-univ6-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: 3-5 menit.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ6-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Platform upload?</p>
+         <p data-template-id="detail-univ6-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: YouTube (unlisted/public).</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-univ6-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Boleh individu?</p>
+         <p data-template-id="detail-univ6-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Ya, individu atau tim (max 4).</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div><!-- ===== DETAIL: webinar ===== -->
+  <div id="page-webinar" class="page">
+   <section class="detail-section relative w-full min-h-screen overflow-hidden"><img data-template-id="detail-webinar-bg" class="canva-image absolute inset-0 w-full h-full object-cover" loading="lazy" src="canva://MAHM2SzMGPg/1" alt="Webinar detail background">
+    <div class="relative z-10 py-12 px-6 max-w-4xl mx-auto"><button onclick="navigateTo('home')" class="mb-8 flex items-center gap-2 text-sm opacity-80 hover:opacity-100"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+     <div class="text-center mb-10">
+      <h1 data-template-id="detail-webinar-name" class="canva-text text-3xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 32px;">Webinar Pharmacy Festival 2026</h1>
+      <p data-template-id="detail-webinar-desc" class="canva-text opacity-80 max-w-xl mx-auto mb-6" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Webinar nasional menghadirkan pembicara ahli di bidang farmasi dan kesehatan.</p><a data-template-id="detail-webinar-register" href="https://forms.google.com" target="_blank" rel="noopener noreferrer" class="canva-button inline-block px-6 py-2.5 rounded-lg font-bold hover:opacity-90" style="background: rgb(255, 215, 0); color: rgb(26, 26, 46); font-weight: 700; font-style: normal; font-size: 16px;">Daftar</a>
+     </div>
+     <div class="space-y-8">
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal">
+       <h2 data-template-id="detail-webinar-theme-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">🎯 Tema &amp; Subtema</h2>
+       <p data-template-id="detail-webinar-theme" class="canva-text font-medium mb-2" style="color: rgb(255, 215, 0); font-weight: 400; font-style: normal; font-size: 16px;">XXXX (Buat Calon Tema)</p>
+       <p data-template-id="detail-webinar-benefits" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Subtema</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.1s">
+       <h2 data-template-id="detail-webinar-timeline-heading" class="canva-text text-xl font-bold mb-3" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">📅 Linimasa</h2>
+       <p data-template-id="detail-webinar-timeline" class="canva-text text-sm opacity-90" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">XXXX</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 reveal" style="transition-delay:0.2s">
+       <h2 data-template-id="detail-webinar-faq-heading" class="canva-text text-xl font-bold mb-4" style="color: rgb(255, 255, 255); font-weight: 700; font-style: normal; font-size: 24px;">❓ FAQ</h2>
+       <div class="space-y-3">
+        <div class="py-2">
+         <p data-template-id="detail-webinar-faq-q1" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah gratis?</p>
+         <p data-template-id="detail-webinar-faq-a1" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Informasi biaya akan diumumkan.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-webinar-faq-q2" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Platform apa?</p>
+         <p data-template-id="detail-webinar-faq-a2" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Zoom Meeting.</p>
+        </div>
+        <div class="py-2">
+         <p data-template-id="detail-webinar-faq-q3" class="canva-text text-sm font-medium mb-1" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">Q: Apakah ada sertifikat?</p>
+         <p data-template-id="detail-webinar-faq-a3" class="canva-text text-sm opacity-80" style="color: rgb(255, 255, 255); font-weight: 400; font-style: normal; font-size: 16px;">A: Ya, e-certificate untuk seluruh peserta.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+// Lightweight IntersectionObserver for scroll reveals
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+function initReveals() {
+  document.querySelectorAll('.page.active .reveal').forEach(el => {
+    if (!el.classList.contains('visible')) {
+      revealObserver.observe(el);
+    }
+  });
+}
+
+function navigateTo(pageId) {
+  const currentPage = document.querySelector('.page.active');
+  const nextPage = document.getElementById('page-' + pageId);
+  
+  if (currentPage && currentPage !== nextPage) {
+    // Exit animation
+    currentPage.classList.add('exit');
+    currentPage.classList.remove('active');
+    
+    setTimeout(() => {
+      currentPage.classList.remove('exit');
+      nextPage.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+      
+      // Re-observe reveals to properly show them
+      document.querySelectorAll('.page.active .reveal').forEach(el => {
+        el.classList.remove('visible');
+        revealObserver.observe(el);
+      });
+    }, 400);
+  } else if (!currentPage) {
+    nextPage.classList.add('active');
+    window.scrollTo(0, 0);
+    lucide.createIcons();
+    
+    document.querySelectorAll('.page.active .reveal').forEach(el => {
+      el.classList.remove('visible');
+      revealObserver.observe(el);
+    });
+  }
+}
+
+const deadline = new Date('2026-08-01T00:00:00+07:00').getTime();
+function updateCountdown() {
+  const el = document.getElementById('countdown-home');
+  const diff = deadline - Date.now();
+  if (diff <= 0) { el.textContent = 'Closed'; return; }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+}
+setInterval(updateCountdown, 1000);
+
+function showToast(message) {
+  let toast = document.getElementById('toast-notification');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#ffd700;padding:12px 20px;border-radius:8px;font-weight:bold;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 2000);
+}
+
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+  showToast("Maaf Fitur Tidak Tersedia!");
+});
+
+document.onkeydown = function(e) {
+  if (e.keyCode === 123) { showToast("Maaf Fitur Tidak Tersedia!"); return false; }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.keyCode === 67 || e.keyCode === 73 || e.keyCode === 74)) { showToast("Maaf Fitur Tidak Tersedia!"); return false; }
+  if (e.ctrlKey && e.keyCode === 85) { showToast("Maaf Fitur Tidak Tersedia!"); return false; }
+};
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  updateCountdown();
+  initReveals();
+});
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  menu.classList.toggle('hidden');
+}
+
+function toggleMobileSubmenu(submenu) {
+  if (submenu === 'competitions') {
+    const menu = document.getElementById('mobile-submenu-competitions');
+    const chevron = document.querySelector('[data-template-id="nav-competitions-mobile"] .mobile-chevron');
+    menu.classList.toggle('hidden');
+    chevron.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  } else if (submenu === 'pelajar') {
+    const menu = document.getElementById('mobile-submenu-pelajar');
+    const chevron = document.querySelector('[data-template-id="nav-comp-pelajar-mobile"] .mobile-chevron-sub');
+    menu.classList.toggle('hidden');
+    chevron.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  } else if (submenu === 'universitas') {
+    const menu = document.getElementById('mobile-submenu-universitas');
+    const chevron = document.querySelector('[data-template-id="nav-comp-univ-mobile"] .mobile-chevron-sub');
+    menu.classList.toggle('hidden');
+    chevron.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0d4c600b524ff78',t:'MTc4MTcyNzgyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body></html>
